@@ -1,5 +1,6 @@
 # extract3Ddata_netCDF
-R functions to extract environmental values from 2D and 3D netCDF files to point-based observations, supporting surface, bottom, nearest-depth and full-profile extraction workflows.
+
+R functions to extract environmental values from 2D and 3D netCDF files to point-based observations, supporting surface, bottom, nearest-depth and combined extraction workflows.
 
 # Features
 
@@ -26,6 +27,7 @@ R functions to extract environmental values from 2D and 3D netCDF files to point
   - Handles different longitude conventions
   - Reads netCDF time metadata
   - Matches nearest spatial and temporal cells
+  - Detects variables automatically when `var = NULL`
 
 ---
 
@@ -99,11 +101,12 @@ nc_file <- "NPPV_Reanalysis_2020-06-18.nc"
 
 ## 3. Extract bottom values
 
+The variable is detected automatically because the file contains only one environmental variable.
+
 ```r
 data_bottom <- extract3d_bottom(
   data = data,
   nc = nc_file,
-  var = "nppv",
   lon_col = "lon",
   lat_col = "lat",
   date_col = "date",
@@ -119,13 +122,35 @@ data_bottom <- extract3d_bottom(
 data_nearest <- extract3d_nearest(
   data = data,
   nc = nc_file,
-  var = "nppv",
   lon_col = "lon",
   lat_col = "lat",
   date_col = "date",
   depth_col = "depth",
   output_col = "nearest_nppv"
 )
+```
+
+---
+
+## 5. Extract several variables from several netCDF files
+
+When several files are provided and `var = NULL`, the package automatically detects the main variable inside each file.
+
+```r
+data_multi <- extract3d_bottom(
+  data = data,
+  nc = c(nppv_file, salinity_file),
+  lon_col = "lon",
+  lat_col = "lat",
+  date_col = "date"
+)
+```
+
+This automatically returns:
+
+```r
+seabottom_nppv
+seabottom_so
 ```
 
 ---
@@ -144,6 +169,15 @@ This behaviour is important in oceanographic products where some depth layers ma
 
 `extract3d_bottom()` extracts the deepest non-missing value available in the profile rather than simply the deepest nominal depth layer.
 
+---
+
+## Automatic variable detection
+
+If `var = NULL`, the package automatically detects the variable stored in the netCDF file.
+
+This works when the file contains a single environmental variable.
+
+If a netCDF file contains several variables, the user must specify `var` manually.
 
 ---
 
@@ -190,12 +224,9 @@ nc = data.frame(file = c("file1.nc", "file2.nc"))
 
 Potential future extensions include:
 
-- Raster and terra support
 - Parallel extraction
 - Polygon-based extraction
 - Interpolation methods
-- Automatic variable detection
-
 
 ---
 
