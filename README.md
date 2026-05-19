@@ -203,8 +203,6 @@ Potential future extensions include:
 
 David Ruiz García
 
-Marine ecology, fisheries ecology and spatial modelling.
-
 ---
 
 # License
